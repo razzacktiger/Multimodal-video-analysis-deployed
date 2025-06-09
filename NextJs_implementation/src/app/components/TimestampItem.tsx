@@ -3,7 +3,6 @@ import React from "react";
 interface TimestampItemProps {
   time: string;
   description: string;
-  seconds: number;
   onClick: () => void;
 }
 

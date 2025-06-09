@@ -84,117 +84,133 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   // Post-process the rendered content to make timestamps clickable
   useEffect(() => {
-    if (!contentRef.current || !onTimestampClick) {
-      console.log("ChatMessage: useEffect skipped - missing ref or callback");
-      return;
-    }
+    // Use setTimeout to ensure DOM is fully rendered
+    const timeoutId = setTimeout(() => {
+      if (!contentRef.current || !onTimestampClick) {
+        console.log(
+          "ChatMessage: useEffect skipped - missing ref or callback",
+          {
+            hasRef: !!contentRef.current,
+            hasCallback: !!onTimestampClick,
+          }
+        );
+        return;
+      }
 
-    console.log("ChatMessage: Processing timestamps in content");
+      console.log("ChatMessage: Processing timestamps in content", {
+        content: content.substring(0, 100),
+        elementText: contentRef.current.textContent?.substring(0, 100),
+      });
 
-    const handleTimestampClick = (timestampText: string, seconds: number) => {
-      console.log(
-        `ChatMessage: Timestamp clicked: ${timestampText} (${seconds} seconds)`
-      );
-      onTimestampClick(seconds);
-    };
+      const handleTimestampClick = (timestampText: string, seconds: number) => {
+        console.log(
+          `ChatMessage: Timestamp clicked: ${timestampText} (${seconds} seconds)`
+        );
+        onTimestampClick(seconds);
+      };
 
-    // Find and replace timestamps in text nodes
-    const processNode = (node: Node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent || "";
+      // Find and replace timestamps in text nodes
+      const processNode = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || "";
 
-        // Enhanced timestamp detection - handles all formats including ranges with spaces
-        const hasTimestamps = /\d{1,2}:\d{2}(?::\d{2})?/.test(text);
+          // Enhanced timestamp detection - handles all formats including ranges with spaces
+          const hasTimestamps = /\d{1,2}:\d{2}(?::\d{2})?/.test(text);
 
-        if (hasTimestamps) {
-          console.log(`Found timestamps in text: "${text}"`);
+          if (hasTimestamps) {
+            console.log(`Found timestamps in text: "${text}"`);
 
-          // Simple but effective regex to match individual timestamps:
-          // - Matches 0:00, 1:23, 12:34:56 anywhere in text
-          // - Will find all timestamps in "(0:00 - 0:16, 1:22 - 2:05)" individually
-          // - Handles timestamps in any context (parentheses, ranges, standalone)
-          const timestampRegex = /\d{1,2}:\d{2}(?::\d{2})?/g;
+            // Simple but effective regex to match individual timestamps:
+            // - Matches 0:00, 1:23, 12:34:56 anywhere in text
+            // - Will find all timestamps in "(0:00 - 0:16, 1:22 - 2:05)" individually
+            // - Handles timestamps in any context (parentheses, ranges, standalone)
+            const timestampRegex = /\d{1,2}:\d{2}(?::\d{2})?/g;
 
-          // Create wrapper span
-          const wrapper = document.createElement("span");
-          let lastIndex = 0;
-          let match;
+            // Create wrapper span
+            const wrapper = document.createElement("span");
+            let lastIndex = 0;
+            let match;
 
-          // Process all matches with null check
-          while ((match = timestampRegex.exec(text)) !== null) {
-            if (!match || !match[0]) {
-              console.warn("Invalid match found, skipping");
-              break;
+            // Process all matches with null check
+            while ((match = timestampRegex.exec(text)) !== null) {
+              if (!match || !match[0]) {
+                console.warn("Invalid match found, skipping");
+                break;
+              }
+
+              // Add text before timestamp
+              if (match.index > lastIndex) {
+                wrapper.appendChild(
+                  document.createTextNode(text.slice(lastIndex, match.index))
+                );
+              }
+
+              // Create timestamp span
+              const timestampSpan = document.createElement("span");
+              timestampSpan.className = "chat-timestamp-link";
+              timestampSpan.textContent = match[0];
+              timestampSpan.title = `Jump to ${match[0]}`;
+              timestampSpan.setAttribute("role", "button");
+              timestampSpan.setAttribute("tabindex", "0");
+
+              const seconds = parseTimestamp(match[0]);
+              console.log(
+                `Creating timestamp link: ${match[0]} -> ${seconds} seconds`
+              );
+
+              // Create closure to capture the current match values
+              ((timestampText: string, timestampSeconds: number) => {
+                // Add event listeners
+                timestampSpan.addEventListener("click", e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log(`Timestamp span clicked: ${timestampText}`);
+                  handleTimestampClick(timestampText, timestampSeconds);
+                });
+
+                timestampSpan.addEventListener("keydown", e => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleTimestampClick(timestampText, timestampSeconds);
+                  }
+                });
+              })(match[0], seconds);
+
+              wrapper.appendChild(timestampSpan);
+              lastIndex = match.index + match[0].length;
+
+              // Prevent infinite loops
+              if (timestampRegex.lastIndex === match.index) {
+                console.warn("Regex not advancing, breaking loop");
+                break;
+              }
             }
 
-            // Add text before timestamp
-            if (match.index > lastIndex) {
+            // Add remaining text
+            if (lastIndex < text.length) {
               wrapper.appendChild(
-                document.createTextNode(text.slice(lastIndex, match.index))
+                document.createTextNode(text.slice(lastIndex))
               );
             }
 
-            // Create timestamp span
-            const timestampSpan = document.createElement("span");
-            timestampSpan.className = "chat-timestamp-link";
-            timestampSpan.textContent = match[0];
-            timestampSpan.title = `Jump to ${match[0]}`;
-            timestampSpan.setAttribute("role", "button");
-            timestampSpan.setAttribute("tabindex", "0");
-
-            const seconds = parseTimestamp(match[0]);
-            console.log(
-              `Creating timestamp link: ${match[0]} -> ${seconds} seconds`
-            );
-
-            // Create closure to capture the current match values
-            ((timestampText: string, timestampSeconds: number) => {
-              // Add event listeners
-              timestampSpan.addEventListener("click", e => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(`Timestamp span clicked: ${timestampText}`);
-                handleTimestampClick(timestampText, timestampSeconds);
-              });
-
-              timestampSpan.addEventListener("keydown", e => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleTimestampClick(timestampText, timestampSeconds);
-                }
-              });
-            })(match[0], seconds);
-
-            wrapper.appendChild(timestampSpan);
-            lastIndex = match.index + match[0].length;
-
-            // Prevent infinite loops
-            if (timestampRegex.lastIndex === match.index) {
-              console.warn("Regex not advancing, breaking loop");
-              break;
+            // Replace the text node
+            if (node.parentNode && wrapper.hasChildNodes()) {
+              node.parentNode.replaceChild(wrapper, node);
+              console.log("Replaced text node with timestamp links");
             }
           }
-
-          // Add remaining text
-          if (lastIndex < text.length) {
-            wrapper.appendChild(document.createTextNode(text.slice(lastIndex)));
-          }
-
-          // Replace the text node
-          if (node.parentNode && wrapper.hasChildNodes()) {
-            node.parentNode.replaceChild(wrapper, node);
-            console.log("Replaced text node with timestamp links");
-          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          // Process child nodes
+          Array.from(node.childNodes).forEach(child => processNode(child));
         }
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        // Process child nodes
-        Array.from(node.childNodes).forEach(child => processNode(child));
-      }
-    };
+      };
 
-    // Process the entire content
-    processNode(contentRef.current);
-    console.log("ChatMessage: Finished processing timestamps");
+      // Process the entire content
+      processNode(contentRef.current);
+      console.log("ChatMessage: Finished processing timestamps");
+    }, 100); // Small delay to ensure DOM is ready
+
+    return () => clearTimeout(timeoutId);
   }, [content, onTimestampClick]);
 
   const processedContent = cleanContent(content);

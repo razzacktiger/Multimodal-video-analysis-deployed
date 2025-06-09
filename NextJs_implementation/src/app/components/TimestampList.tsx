@@ -118,7 +118,6 @@ const TimestampList: React.FC<TimestampListProps> = ({
                       key={index}
                       time={timestampData.time}
                       description={timestampData.description}
-                      seconds={timestampData.seconds}
                       onClick={() => onTimestampClick(timestampData.seconds)}
                     />
                   );
