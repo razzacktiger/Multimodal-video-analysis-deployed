@@ -2,7 +2,7 @@
 
 A powerful AI-driven web application that lets you chat with YouTube videos, generate smart timestamps, and search for specific scenes using natural language.
 
-## 🚀 **[Try it Live!](https://your-app-url.vercel.app)** _(Replace with your actual deployment URL)_
+## 🚀 **[Try it Live!](https://your-app-url.vercel.app)**
 
 ## ✨ What You Can Do
 
