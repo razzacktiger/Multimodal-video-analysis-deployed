@@ -86,7 +86,14 @@ See the tool in action with this sample video:
 
 - **No data storage**: Your conversations aren't saved
 - **Secure API calls**: All AI processing happens server-side
+- **No data storage**: Your conversations aren't saved
 - **No tracking**: We don't collect personal information
+
+## 👥 Meet the Developers
+
+- **[Rayan Roshan](https://www.linkedin.com/in/rayan-roshan/)**
+- **[Haroon Razzack](https://www.linkedin.com/in/haroonrazzack/)**
+- **[Nikhil Aashray](https://www.linkedin.com/in/nikhilkonda/)**
 
 ## 🐛 Issues or Questions?
 
