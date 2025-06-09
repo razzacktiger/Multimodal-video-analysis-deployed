@@ -97,14 +97,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       if (node.nodeType === Node.TEXT_NODE) {
         const text = node.textContent || "";
 
-        // First check if text contains timestamps
-        const hasTimestamps = /\b(\d{1,2}:\d{2}(?::\d{2})?)\b/.test(text);
+        // Enhanced timestamp detection - handles all formats including ranges with spaces
+        const hasTimestamps = /\d{1,2}:\d{2}(?::\d{2})?/.test(text);
 
         if (hasTimestamps) {
           console.log(`Found timestamps in text: "${text}"`);
 
-          // Create fresh regex for actual processing
-          const timestampRegex = /\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g;
+          // Simple but effective regex to match individual timestamps:
+          // - Matches 0:00, 1:23, 12:34:56 anywhere in text
+          // - Will find all timestamps in "(0:00 - 0:16, 1:22 - 2:05)" individually
+          // - Handles timestamps in any context (parentheses, ranges, standalone)
+          const timestampRegex = /\d{1,2}:\d{2}(?::\d{2})?/g;
 
           // Create wrapper span
           const wrapper = document.createElement("span");
@@ -113,7 +116,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
           // Process all matches with null check
           while ((match = timestampRegex.exec(text)) !== null) {
-            if (!match || !match[1]) {
+            if (!match || !match[0]) {
               console.warn("Invalid match found, skipping");
               break;
             }
@@ -128,14 +131,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             // Create timestamp span
             const timestampSpan = document.createElement("span");
             timestampSpan.className = "chat-timestamp-link";
-            timestampSpan.textContent = match[1];
-            timestampSpan.title = `Jump to ${match[1]}`;
+            timestampSpan.textContent = match[0];
+            timestampSpan.title = `Jump to ${match[0]}`;
             timestampSpan.setAttribute("role", "button");
             timestampSpan.setAttribute("tabindex", "0");
 
-            const seconds = parseTimestamp(match[1]);
+            const seconds = parseTimestamp(match[0]);
             console.log(
-              `Creating timestamp link: ${match[1]} -> ${seconds} seconds`
+              `Creating timestamp link: ${match[0]} -> ${seconds} seconds`
             );
 
             // Create closure to capture the current match values
@@ -154,10 +157,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   handleTimestampClick(timestampText, timestampSeconds);
                 }
               });
-            })(match[1], seconds);
+            })(match[0], seconds);
 
             wrapper.appendChild(timestampSpan);
-            lastIndex = match.index + match[1].length;
+            lastIndex = match.index + match[0].length;
 
             // Prevent infinite loops
             if (timestampRegex.lastIndex === match.index) {
