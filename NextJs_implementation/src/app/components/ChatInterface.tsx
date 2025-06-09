@@ -123,7 +123,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         className="chat-suggested-question"
                         onClick={() => setInputMessage(question)}
                       >
-                        "{question}"
+                        &ldquo;{question}&rdquo;
                       </button>
                     ))}
                   </div>

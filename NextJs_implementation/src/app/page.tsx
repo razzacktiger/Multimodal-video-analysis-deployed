@@ -52,7 +52,9 @@ export default function VideoAnalysisApp() {
     useState<AbortController | null>(null);
 
   // Refs
-  const videoPlayerRef = useRef<any>(null);
+  const videoPlayerRef = useRef<{ seekTo: (seconds: number) => void } | null>(
+    null
+  );
 
   /**
    * Handle video URL submission and processing
@@ -222,6 +224,7 @@ export default function VideoAnalysisApp() {
 
       // Calculate processing time
       const endTime = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const processingTime = (endTime - startTime) / 1000; // Convert to seconds
 
       // Add AI response to chat with timing
@@ -242,6 +245,7 @@ export default function VideoAnalysisApp() {
 
       // Calculate processing time for error case too
       const endTime = Date.now();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const processingTime = (endTime - startTime) / 1000;
 
       // Add error message to chat with timing

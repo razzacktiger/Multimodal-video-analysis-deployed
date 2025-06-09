@@ -21,23 +21,29 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   // Custom renderer for markdown components
   const components = {
     // Handle paragraphs
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     p: ({ children }: any) => (
       <div className="message-paragraph">{children}</div>
     ),
 
     // Handle lists
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ul: ({ children }: any) => <ul className="message-list">{children}</ul>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     li: ({ children }: any) => (
       <li className="message-list-item">{children}</li>
     ),
 
     // Handle emphasis and strong
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     em: ({ children }: any) => <em className="message-emphasis">{children}</em>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     strong: ({ children }: any) => (
       <strong className="message-strong">{children}</strong>
     ),
 
     // Handle regular links only
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     a: ({ href, children, ...props }: any) => (
       <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
         {children}

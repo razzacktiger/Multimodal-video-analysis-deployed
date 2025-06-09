@@ -13,7 +13,6 @@ interface TimestampItemProps {
 const TimestampItem: React.FC<TimestampItemProps> = ({
   time,
   description,
-  seconds,
   onClick,
 }) => {
   return (

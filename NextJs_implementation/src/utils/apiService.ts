@@ -166,6 +166,7 @@ export const chatWithVideo = async (
 export const searchVideoContent = async (
   query: string,
   videoId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any[]> => {
   // TODO: Implement when frame search API is ready
   console.log(
