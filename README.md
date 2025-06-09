@@ -73,6 +73,15 @@ npm run dev
 - ✅ **Formats**: Standard URLs, youtu.be links, embed URLs
 - ✅ **Devices**: Desktop, tablet, mobile responsive
 
+## 🎬 Live Demo
+
+See the tool in action with this sample video:
+
+[![Multimodal Video Analysis Demo](https://img.youtube.com/vi/-MMrOBcbz7U/0.jpg)](https://youtu.be/-MMrOBcbz7U)
+
+**[Watch Demo Video](https://youtu.be/-MMrOBcbz7U)** - See how to chat with videos and generate smart timestamps!
+
+
 ## 🔒 Privacy & Security
 
 - **No data storage**: Your conversations aren't saved
